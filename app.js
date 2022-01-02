@@ -3,24 +3,35 @@ const app = () => {
     const play = document.querySelector('.play');
     const outline = document.querySelector('.moving-outline circle');
     const video = document.querySelector('.vid-container video');
-
+//sound
     const sounds = document.querySelectorAll('.sound-picker button');
-    const timeDisplay = document.querySelector('.timeDisplay');
-    const timeSelect = document.querySelectorAll('.timeSelect button');
+//time
+    const timeDisplay = document.querySelector('.time-display');
     const outlineLength = outline.getTotalLength();
-    console.log(outlineLength);
-
+//duration
+    const timeSelect = document.querySelectorAll('.time-select button');
     let fakeDuration = 600;
 
     outline.style.strokeDasharray = outlineLength;
     outline.style.strokeDashoffset = outlineLength;
 
+//pick sound
+    sounds.forEach(sound =>{
+        sound.addEventListener('click', function(){
+            song.src = this.getAttribute('data-sound');
+            video.src = this.getAttribute('data-video');
+            checkPlaying(song);
+        });
+    });
+
+
+
     play.addEventListener("click", () => {
         checkPlaying(song);
     });
-
-    timeSelect.forEach(option =>{
-        option.addEventListener('click', function(){
+    //select sound
+    timeSelect.forEach(option => {
+        option.addEventListener("click", function(){
             fakeDuration = this.getAttribute("data-time");
             timeDisplay.textContent = `${Math.floor(fakeDuration / 60)}:${Math.floor(
                 fakeDuration % 60
@@ -40,17 +51,24 @@ const app = () => {
         }
     };
     
-    song.ontimeupdate = () => {
+    song.ontimeupdate = function () {
         let currentTime = song.currentTime;
         let elapsed = fakeDuration - currentTime;
         let seconds = Math.floor(elapsed % 60); 
-        let minutes =Math.floor(elapsed / 60);
-
+        let minutes = Math.floor(elapsed / 60);
+        timeDisplay.textContent = `${minutes}:${seconds}`;
+      
         let progress = outlineLength - (currentTime / fakeDuration) * outlineLength;
         outline.style.strokeDashoffset = progress;
 
-        timeDisplay.textContent = `${minutes}:${seconds}`;
-    };
+        if(currentTime >= fakeDuration){
+            song.pause();
+            song.currentTime = 0;
+            play.src = './svg/play.svg';
+            video.pause();
+        }
+        
+    }
 };
 
 app();
